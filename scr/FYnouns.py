@@ -4,6 +4,7 @@ import urllib2 as urllib
 import requests
 import StringIO
 import os, os.path
+import cgi
 from PIL import Image, ImageDraw, ImageFont
 
 #####################
@@ -29,6 +30,8 @@ if __name__ == '__main__':
 	print
 	print "I am a python script"
 	print 'You\'re totally reading this right now, aren\'t you?'
+	arguments = cgi.FieldStorage()
+	print "The argument was " + arguments['query'].value
 
 def getURLToImage(searchTerm, selectionType='top', safeSearch=True):
 	if selectionType=='top':
@@ -87,7 +90,7 @@ def addTextToImage(image, text):
 	dims = image.size
 	
 	fontsize = 1
-	fontpath = "/Library/Fonts/Arial Rounded Bold.ttf"
+	fontpath = "../fonts/Arial Rounded Bold.ttf"
 	font = ImageFont.truetype(fontpath, fontsize)
 	while (font.getsize("FUCK YEAH")[0] < dims[0] - 20) and (font.getsize(text)[0] < dims[0] - 20):
 		fontsize += 1
@@ -112,16 +115,17 @@ def getImageFromBing(searchTerm, index=0, safeSearch=True):
 	headerData = {'Authorization': 'Basic ' + auth}
 	searchUri = makeSearchUri(searchTerm, safeSearch)
 	urlRequest = requests.get(searchUri, headers=headerData)
-	try:
-		imageData = urlRequest.json()['d']['results'][index]
-		imageHeight = imageData['Height'] #Unused
-		imageWidth = imageData['Width'] #Unused
-		imageUrl = imageData['MediaUrl']
-		imageRequest = requests.get(imageUrl)
-		image = Image.open(StringIO.StringIO(imageRequest.content))
-		return image
-	except: #make this an explicit exception
-		raise IOError("No Image found on Bing")
+	print 'trying ' + str(searchUri) + 'with headers' + str(headerData)
+	#try:
+	imageData = urlRequest.json()['d']['results'][index]
+	imageHeight = imageData['Height'] #Unused
+	imageWidth = imageData['Width'] #Unused
+	imageUrl = imageData['MediaUrl']
+	imageRequest = requests.get(imageUrl)
+	image = Image.open(StringIO.StringIO(imageRequest.content))
+	return image
+	#except: #make this an explicit exception
+		#raise IOError("No Image found on Bing")
 
 def makeSearchUri(searchTerm, safeSearch=True):
 	returnString = "https://api.datamarket.azure.com/Bing/Search/v1/Image?$format=json&Query=%27" + urllib.quote(searchTerm) + "%27"
