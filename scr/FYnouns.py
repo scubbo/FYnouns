@@ -25,6 +25,9 @@ def findImage(inputString):
 	pass
 
 if __name__ == '__main__':
+	print "Content-Type: text/html"
+	print
+	print "I am a python script"
 	print 'You\'re totally reading this right now, aren\'t you?'
 
 def getURLToImage(searchTerm, selectionType='top', safeSearch=True):
