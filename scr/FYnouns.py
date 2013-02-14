@@ -101,7 +101,7 @@ def addTextToImage(image, text):
 	drawOutlinedText(draw, ((dims[0] - w2)/2, top+h1), text, font)
 	return image
 
-def drawOutlinedText(draw, location, text, font, fill="white", outline="black", width=1)
+def drawOutlinedText(draw, location, text, font, fill="white", outline="black", width=1):
 	draw.text((location[0]-width, location[1]), text, outline, font)
 	draw.text((location[0], location[1]-width), text, outline, font)
 	draw.text((location[0]+width, location[1]), text, outline, font)
