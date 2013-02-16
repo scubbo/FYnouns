@@ -1,6 +1,7 @@
 $(document).ready(function() {
-	console.log('hello there!');
-	$('#go').click(function() {
-		window.location.href="/p/" + encodeURIComponent($('#searchBox').val());
+	$('#searchBox').keyup(function(event) {
+		if (event.keyCode == 13) {
+			window.location.href="/p/" + encodeURIComponent($('#searchBox').val());
+		}
 	});
 });

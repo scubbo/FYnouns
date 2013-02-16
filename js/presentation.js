@@ -11,7 +11,7 @@ $(document).ready(function() {
 
 
 function loadImage(query) {
-	$('#theImageWrapper').css('background-image', 'url(/css/ajaxload.gif)');
+	$('#theImageWrapper').css({'background-size': 'auto', 'background-image':'url(/css/ajaxload.gif)'});
 	window.history.pushState('', 'FUCK YEAH ' + query.toUpperCase(), '/p/' + encodeURIComponent(query));
 	$('#searchBox').val('');
 	$.ajax({
@@ -19,7 +19,7 @@ function loadImage(query) {
 		type:'post',
 		datatype:'text',
 		success:function(data, textStatus, jqXHR) {
-			//$('#theImageWrapper').css('background-image', 'url(' + data + ')');
+			$('#theImageWrapper').css({'background-size':'contain', 'background-image':'url(' + data + ')'})
 		}
 	});
 }

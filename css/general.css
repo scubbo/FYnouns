@@ -2,3 +2,25 @@
 	margin:0;
 	padding:0;
 }
+#searchWrapper {
+        width:551px;
+        height:40px;
+        margin:20px auto 0;
+        text-align:center;
+}
+#searchLabel, #searchBox {
+        font-size:32px;
+        font-family:Arial;
+        font-weight:bold;
+        letter-spacing:-2px;
+        line-height:40px;
+}
+#searchBox {
+        height:40px;
+        vertical-align:top;
+        text-transform:uppercase;
+        border:1px solid #DDD;
+        outline:none;
+        margin-top:2px;
+        padding-left:5px;
+}
