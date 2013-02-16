@@ -3,8 +3,9 @@ import base64
 import urllib2 as urllib
 import requests
 import StringIO
-import os, os.path
+import os, os.path, sys
 import cgi
+import json
 from PIL import Image, ImageDraw, ImageFont
 
 #####################
@@ -16,7 +17,6 @@ from PIL import Image, ImageDraw, ImageFont
 # - add image at 'img/unfound.jpg'
 # - indexError at :?? => nothing found
 # - splitting the text into two lines if it is significantly longer than "FUCK YEAH"
-# - set "fontpath" dynamically (package font up with app?)
 # - put accountKey in a separate file
 #
 #####################
@@ -25,15 +25,7 @@ def findImage(inputString):
 	#search Google for the relevant image, and return it
 	pass
 
-if __name__ == '__main__':
-	print "Content-Type: text/html"
-	print
-	print "I am a python script"
-	print 'You\'re totally reading this right now, aren\'t you?'
-	arguments = cgi.FieldStorage()
-	print "The argument was " + arguments['query'].value
-
-def getURLToImage(searchTerm, selectionType='top', safeSearch=True):
+def getURLToImage(searchTerm, selectionType='top', safeSearch=False):
 	if selectionType=='top':
 		#Always return the top result
 		imgPath = makeImagePath(searchTerm, 0, safeSearch)
@@ -42,31 +34,15 @@ def getURLToImage(searchTerm, selectionType='top', safeSearch=True):
 		return imgPath
 	if selectionType=='random':
 		#Pick a result at random
-		cacheSafeNum = len(os.listdir('img/' + searchTerm.lower() + '/ss'))
-		cacheUnsafeNum = len(os.listdir('img/' + searchTerm.lower() + '/us'))
-		cacheNum = cacheSafeNum + cacheUnsafeNum
-		if shouldRandomMakeNew(cachenum):
-			if safeSearch:
-				newIndex = cacheSafeNum
-			else:
-				newIndex = cacheUnsafeNum
-			makeNewImage(searchTerm, newIndex, safeSearch)
-			return makeImagePath(searchTerm, newIndex, safeSearch)
-		else:
-			if safeSearch:
-				upperLimit = cacheSafeNum
-			else:
-				upperLimit = cacheUnsafeNum
-			return makeImagePath(searchTerm, random.randrange(0, upperLimit), safeSearch)
+		cacheNum = len(os.listdir(imageDir + searchTerm.lower()))
+		if shouldRandomMakeNew(cacheNum):
+			makeNewImage(searchTerm, cacheNum, safeSearch)
+			return makeImagePath(searchTerm, cacheNum, safeSearch)
 	return 'img/unfound.jpg'
 
-def makeImagePath(searchTerm, index, safeSearch):
-	imgPath = 'img/'
-	imgPath += searchTerm.lower() + '/'
-	if safeSearch:
-		imgPath += 'ss/'
-	else:
-		imgPath += 'us/'
+def makeImagePath(searchTerm, index, safeSearch=False):
+	imgPath = imageDir
+	imgPath += searchTerm.lower().replace(' ', '_') + os.path.sep
 	imgPath += str(index) + '.jpg'
 	return imgPath
 	
@@ -90,7 +66,7 @@ def addTextToImage(image, text):
 	dims = image.size
 	
 	fontsize = 1
-	fontpath = "../fonts/Arial Rounded Bold.ttf"
+	fontpath = "../font/Arial Rounded Bold.ttf"
 	font = ImageFont.truetype(fontpath, fontsize)
 	while (font.getsize("FUCK YEAH")[0] < dims[0] - 20) and (font.getsize(text)[0] < dims[0] - 20):
 		fontsize += 1
@@ -115,7 +91,6 @@ def getImageFromBing(searchTerm, index=0, safeSearch=True):
 	headerData = {'Authorization': 'Basic ' + auth}
 	searchUri = makeSearchUri(searchTerm, safeSearch)
 	urlRequest = requests.get(searchUri, headers=headerData)
-	print 'trying ' + str(searchUri) + 'with headers' + str(headerData)
 	#try:
 	imageData = urlRequest.json()['d']['results'][index]
 	imageHeight = imageData['Height'] #Unused
@@ -137,3 +112,11 @@ def makeSearchUri(searchTerm, safeSearch=True):
 
 accountKey = "kMagMc7T2GKAh5gjIfEQFpP9x9I36SnzHvvcGhp2jU0="
 auth = base64.encodestring("$acctKey:" + accountKey)
+imageDir = os.path.pardir + os.path.sep + 'img' + os.path.sep
+
+if __name__ == '__main__':
+	arguments = cgi.FieldStorage()
+	print "Content-Type: text/plain"
+	print
+	sys.stdout.write(getURLToImage(arguments['query'].value, 'top')[2:])
+	sys.stdout.flush()
