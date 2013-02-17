@@ -12,4 +12,6 @@ Put a file called "config" in the "scr" folder, containing a json dictionary wit
 Currently, only supported is "accountKey", for the Bing API accountKey
 
 e.g. contents of config:
-    {"accountKey":"abc123="}
+```
+{"accountKey":"abc123="}
+```
