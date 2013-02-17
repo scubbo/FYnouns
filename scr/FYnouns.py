@@ -56,7 +56,7 @@ def makeNewImage(searchTerm, index=0, safeSearch=True):
 		os.makedirs(os.path.dirname(savePath))
 		im.save(savePath, "JPEG")
 
-def searchForAndSubtitleImage(searchTerm, index=0, safeSearch=True):
+def searchForAndSubtitleImage(searchTerm, index=0, safeSearch=False):
 	im = getImageFromBing(searchTerm, index, safeSearch)
 	addTextToImage(im, searchTerm)
 	return im
@@ -76,8 +76,12 @@ def addTextToImage(image, text):
 	w1, h1 = draw.textsize("FUCK YEAH", font=font)
 	w2, h2 = draw.textsize(text, font=font)
 	top = dims[1] - (h1 + h2 + 10)
-	drawOutlinedText(draw, ((dims[0] - w1)/2, top), "FUCK YEAH", font)
-	drawOutlinedText(draw, ((dims[0] - w2)/2, top+h1), text, font)
+	if text == 'AMERICA':
+		drawOutlinedText(draw, ((dims[0] - w2)/2, top), text, font)
+		drawOutlinedText(draw, ((dims[0] - w1)/2, top+h1), "FUCK YEAH", font)
+	else:
+		drawOutlinedText(draw, ((dims[0] - w1)/2, top), "FUCK YEAH", font)
+		drawOutlinedText(draw, ((dims[0] - w2)/2, top+h1), text, font)
 	return image
 
 def drawOutlinedText(draw, location, text, font, fill="white", outline="black", width=1):
@@ -87,7 +91,7 @@ def drawOutlinedText(draw, location, text, font, fill="white", outline="black", 
 	draw.text((location[0], location[1]+width), text, outline, font)
 	draw.text((location[0], location[1]), text, fill, font)
 	
-def getImageFromBing(searchTerm, index=0, safeSearch=True):
+def getImageFromBing(searchTerm, index=0, safeSearch=False):
 	headerData = {'Authorization': 'Basic ' + auth}
 	searchUri = makeSearchUri(searchTerm, safeSearch)
 	urlRequest = requests.get(searchUri, headers=headerData)
@@ -98,7 +102,8 @@ def getImageFromBing(searchTerm, index=0, safeSearch=True):
 	imageUrl = imageData['MediaUrl']
 	imageRequest = requests.get(imageUrl)
 	image = Image.open(StringIO.StringIO(imageRequest.content))
-	return image
+	#Code below is to coerce image into format whereby it can be a) written upon and b) saved as JPG
+	return image.convert('RGB')
 	#except: #make this an explicit exception
 		#raise IOError("No Image found on Bing")
 
@@ -110,7 +115,8 @@ def makeSearchUri(searchTerm, safeSearch=True):
 		returnString += "&Adult=%27Off%27"
 	return returnString
 
-accountKey = "kMagMc7T2GKAh5gjIfEQFpP9x9I36SnzHvvcGhp2jU0="
+with file('config', 'r') as f:
+	accountKey = json.loads(f.read())['accountKey']
 auth = base64.encodestring("$acctKey:" + accountKey)
 imageDir = os.path.pardir + os.path.sep + 'img' + os.path.sep
 
